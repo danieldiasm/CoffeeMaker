@@ -16,8 +16,9 @@
 SoftwareSerial DFSoftSerial(10, 11); // RX, TX
 DFRobotDFPlayerMini DFPlayer;
 //LEDs Pin Setup
+//(Must be PWM capable pins, due to fade effects)
 const byte LED_Green  = 3;
-const byte LED_Yellow = 4;
+const byte LED_Yellow = 9;
 const byte LED_Red    = 5;
 //Actuators Pin Setup
 const byte Coil_01    = 6;
@@ -36,11 +37,12 @@ byte LastMode = 1;
 byte modesQty = 1;
 
 void setup() {
+  //Start-up Proceedure
+
+  //DFPlayer Startup
   DFSoftSerial.begin(9600);
   DFPlayer.begin(DFSoftSerial);
-  DFPlayer.volume(25);
-  DFPlayer.play(1);
-  delay(6800);
+  DFPlayer.volume(30);
   //LEDs
   pinMode(LED_Green,  OUTPUT);
   pinMode(LED_Yellow, OUTPUT);
@@ -49,6 +51,9 @@ void setup() {
   pinMode(Coil_01, OUTPUT);
   //Controls and Buttons
   pinMode(Btn_01,  INPUT);
+
+  //Play Startup Sound and LED Effects
+  playStartUp();
 }
 
 void loop(){
@@ -79,7 +84,7 @@ void stateCycler(){
 
 //Set the outputs as the states indicates
 void modeSelect(){
-  DFPlayer.play(2);
+  
   switch (Mode)
   {
   case 0:
@@ -103,7 +108,7 @@ void makingCoffee(){
   }
   digitalWrite(LED_Green, HIGH);
   digitalWrite(Coil_01, HIGH);
-
+  DFPlayer.play(3);
 }
 
 //Stand by Mode 
@@ -118,6 +123,7 @@ void standBy(){
   }
   digitalWrite(LED_Yellow, HIGH);
   digitalWrite(Coil_01, LOW);
+  DFPlayer.play(5);
 }
 
 //Cleans up all lit LEDs
@@ -126,25 +132,41 @@ void cleanLEDs(){
   digitalWrite(LED_Yellow, LOW);
   digitalWrite(LED_Red, LOW);
 }
+int fadeDelay = 500;
 
-// void playStartUp(){
-//   int startUpTone[] = {
-//   NOTE_G4, NOTE_A3, NOTE_D4, NOTE_A3, NOTE_D4, NOTE_C4, NOTE_G4, NOTE_D4};
-
-//   int noteDurations[] = {4,7,7,7,3,4,3,4};
-
-//   for (int thisNote = 0; thisNote < 8; thisNote++) {
-
-//   // to calculate the note duration, take one second divided by the note type.
-//   //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
-//   int noteDuration = 1000 / noteDurations[thisNote];
-//   tone(Buzzer, startUpTone[thisNote], noteDuration);
-
-//   // to distinguish the notes, set a minimum time between them.
-//   // the note's duration + 30% seems to work well:
-//   int pauseBetweenNotes = noteDuration * 1.30;
-//   delay(pauseBetweenNotes);
-//   // stop the tone playing:
-//   noTone(Buzzer);
-//   }
-// }
+void playStartUp(){
+  DFPlayer.play(1);
+  for (int j = 0; j < 10; j++)
+  {
+    for (int i = 0; i < 500; i++)
+  {
+    if ((i>0)&&(i<250)){
+      analogWrite(LED_Green, i);
+      delayMicroseconds(fadeDelay);
+      }
+    if ((i>125)&&(i<375)){
+      analogWrite(LED_Yellow, i-125);
+      delayMicroseconds(fadeDelay);
+      }
+    if ((i>250)&&(i<500)){
+      analogWrite(LED_Red, i-250);
+      delayMicroseconds(fadeDelay);
+      }
+  }
+  for (int i = 500; i > 0; i--)
+  {
+    if ((i<500)&&(i>250)){
+      analogWrite(LED_Green, i-250);
+      delayMicroseconds(fadeDelay);
+      }
+    if ((i<375)&&(i>125)){
+      analogWrite(LED_Yellow, i-125);
+      delayMicroseconds(fadeDelay);
+      }
+    if ((i>0)&&(i<250)){
+      analogWrite(LED_Red, i);
+      delayMicroseconds(fadeDelay);
+      }
+  }
+  }
+}
