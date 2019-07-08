@@ -1,3 +1,5 @@
+#include <SoftwareSerial.h>
+#include "DFRobotDFPlayerMini.h"
 /*
  Coffee Maker - Firmware Version 1.0A
  Created on: 06 Jul 2019
@@ -11,8 +13,8 @@
  Pin 06 - Coil Relay
  Pin 07 - Button 01
 */
-
-
+SoftwareSerial DFSoftSerial(10, 11); // RX, TX
+DFRobotDFPlayerMini DFPlayer;
 //LEDs Pin Setup
 const byte LED_Green  = 3;
 const byte LED_Yellow = 4;
@@ -34,6 +36,11 @@ byte LastMode = 1;
 byte modesQty = 1;
 
 void setup() {
+  DFSoftSerial.begin(9600);
+  DFPlayer.begin(DFSoftSerial);
+  DFPlayer.volume(25);
+  DFPlayer.play(1);
+  delay(6800);
   //LEDs
   pinMode(LED_Green,  OUTPUT);
   pinMode(LED_Yellow, OUTPUT);
@@ -42,11 +49,9 @@ void setup() {
   pinMode(Coil_01, OUTPUT);
   //Controls and Buttons
   pinMode(Btn_01,  INPUT);
-  playStartUp();
 }
 
-void loop() {
-
+void loop(){
 stateCycler();
 
 //Calls the mode modeSelect if the status changes
@@ -74,6 +79,7 @@ void stateCycler(){
 
 //Set the outputs as the states indicates
 void modeSelect(){
+  DFPlayer.play(2);
   switch (Mode)
   {
   case 0:
@@ -97,6 +103,7 @@ void makingCoffee(){
   }
   digitalWrite(LED_Green, HIGH);
   digitalWrite(Coil_01, HIGH);
+
 }
 
 //Stand by Mode 
