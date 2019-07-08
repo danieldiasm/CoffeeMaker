@@ -36,6 +36,8 @@ byte LastMode = 1;
 //Declares how many modes the machine have to cycle through
 byte modesQty = 1;
 
+byte startUpComplete = 0;
+
 void setup() {
   //Start-up Proceedure
 
@@ -64,6 +66,7 @@ if (Mode != LastMode){
   modeSelect();
   LastMode = Mode;
 }
+
 }
 
 //Reads the button 01 state and cycle through qty of states
@@ -123,7 +126,16 @@ void standBy(){
   }
   digitalWrite(LED_Yellow, HIGH);
   digitalWrite(Coil_01, LOW);
-  DFPlayer.play(5);
+
+  //Avoids playing standBy Chime at the first startup
+  if (startUpComplete > 0){
+    DFPlayer.play(5);
+  }
+  if (startUpComplete == 0)
+  {
+    startUpComplete++;
+  }
+  
 }
 
 //Cleans up all lit LEDs
