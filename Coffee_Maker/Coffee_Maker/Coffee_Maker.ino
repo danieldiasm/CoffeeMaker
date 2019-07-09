@@ -35,7 +35,7 @@ byte Mode = 0;
 byte LastMode = 1;
 //Declares how many modes the machine have to cycle through
 byte modesQty = 1;
-
+//First StartUp flag (to avoid some undesired first start behaviors*)
 byte startUpComplete = 0;
 
 void setup() {
